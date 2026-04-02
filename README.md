@@ -4,20 +4,19 @@ Multi-tenant authentication service built with NestJS.
 
 ## Architecture
 
-The project follows a clean architecture with the following layers:
-┌─────────────────────────────────────────────────────┐
-│ Interface Layer │
-│ (Controllers, DTOs, Guards, Decorators) │
-├─────────────────────────────────────────────────────┤
-│ Application Layer │
-│ (Commands, Queries, Handlers) │
-├─────────────────────────────────────────────────────┤
-│ Domain Layer │
-│ (Entities, Value Objects, Interfaces) │
-├─────────────────────────────────────────────────────┤
-│ Infrastructure Layer │
-│ (Prisma, JWT, Redis, Middleware, Repositories) │
-└─────────────────────────────────────────────────────┘
+The project has the following layers:
+
+- **Interface Layer**  
+  (Controllers, DTOs, Guards, Decorators)
+
+- **Application Layer**  
+  (Commands, Queries, Handlers)
+
+- **Domain Layer**  
+  (Entities, Value Objects, Interfaces)
+
+- **Infrastructure Layer**  
+  (Prisma, JWT, Redis, Middleware, Repositories)
 
 ## Features
 
@@ -41,16 +40,22 @@ npx prisma migrate dev --name init
 
 # Seed database
 npm run prisma:seed
+```
 
-API Endpoints
-Authentication (Public)
-Method,Endpoint,Description
-POST,/api/auth/register,Register new user
-POST,/api/auth/login,Login and get tokens
+## API Endpoints
 
-User Management (Protected)
-Method,Endpoint,Description
-GET,/api/users/me,Get current user profile
+### Authentication (Public)
+
+| Method | Endpoint             | Description          |
+| ------ | -------------------- | -------------------- |
+| POST   | `/api/auth/register` | Register new user    |
+| POST   | `/api/auth/login`    | Login and get tokens |
+
+### User Management (Protected)
+
+| Method | Endpoint        | Description              |
+| ------ | --------------- | ------------------------ |
+| GET    | `/api/users/me` | Get current user profile |
 
 Headers Required
 All requests must include:
@@ -60,7 +65,6 @@ x-tenant-id: Your tenant identifier (UUID)
 Protected routes also require:
 
 Authorization: Bearer <access_token>
-```
 
 ### Detailed Layer Architecture
 
@@ -71,7 +75,7 @@ flowchart TD
         direction TB
 
         %% Layer 1: Domain (Innermost)
-        subgraph Domain["Domain (Enterprise Business Logic)"]
+        subgraph Domain["Enterprise Business Logic"]
             direction TB
             VO["Value Objects\n(email.vo, password.vo, tenant-id.vo, user-id.vo)"]
             Entities["Entities & Interfaces"]
@@ -79,7 +83,7 @@ flowchart TD
         end
 
         %% Layer 2: Application
-        subgraph Application["Application (Use Cases)"]
+        subgraph Application["Use Cases"]
             direction TB
             Auth["Auth Module\n(login, register, refresh, logout)"]
             User["User Module\n(create, update, deactivate)"]
@@ -88,7 +92,7 @@ flowchart TD
         end
 
         %% Layer 3: Infrastructure
-        subgraph Infrastructure["Infrastructure (Frameworks & Drivers)"]
+        subgraph Infrastructure["Frameworks & Drivers"]
             direction TB
             Persistence["Persistence\n(Prisma)"]
             AuthInfra["Authentication\n(JWT + bcrypt)"]
