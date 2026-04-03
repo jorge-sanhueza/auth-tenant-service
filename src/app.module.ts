@@ -23,6 +23,7 @@ import { PrismaSessionRepository } from './infrastructure/persistence/prisma/rep
 import { RefreshTokenHandler } from './application/auth/handlers/refresh-token.handler';
 import { LogoutHandler } from './application/auth/handlers/logout.handler';
 import { LogoutAllHandler } from './application/auth/handlers/logout-all.handler';
+import { ChangePasswordHandler } from './application/auth/handlers/change-password.handler';
 
 const commandHandlers = [
   RegisterHandler,
@@ -30,6 +31,7 @@ const commandHandlers = [
   RefreshTokenHandler,
   LogoutHandler,
   LogoutAllHandler,
+  ChangePasswordHandler,
 ];
 const queryHandlers = [GetCurrentUserHandler];
 const repositories = [

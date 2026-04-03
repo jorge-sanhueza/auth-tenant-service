@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Req,
   BadRequestException,
+  Patch,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { RegisterCommand } from '../../../application/auth/commands/register.command';
@@ -33,6 +34,9 @@ import {
   type CurrentUserType,
 } from '../decorators/current-user.decorator';
 import { LogoutAllCommand } from 'src/application/auth/commands/logout-all.command';
+import { ChangePasswordRequestDto } from '../dto/request/change-password.request.dto';
+import { ChangePasswordCommand } from 'src/application/auth/commands/change-password.command';
+import { ChangePasswordResult } from 'src/application/auth/types/change-password-result.type';
 
 @Controller('auth')
 export class AuthController {
@@ -168,6 +172,27 @@ export class AuthController {
     const result = await this.commandBus.execute<
       LogoutAllCommand,
       LogoutResult
+    >(command);
+
+    return ApiResponse.success(result, result.message, HttpStatus.OK);
+  }
+
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Body() changePasswordDto: ChangePasswordRequestDto,
+  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    const command = new ChangePasswordCommand(
+      currentUser.userId,
+      currentUser.tenantId,
+      changePasswordDto.oldPassword,
+      changePasswordDto.newPassword,
+    );
+
+    const result = await this.commandBus.execute<
+      ChangePasswordCommand,
+      ChangePasswordResult
     >(command);
 
     return ApiResponse.success(result, result.message, HttpStatus.OK);
