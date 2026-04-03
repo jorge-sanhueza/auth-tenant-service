@@ -29,3 +29,11 @@ export interface LoginResponseData {
 }
 
 export type LoginResponseDto = ApiResponse<LoginResponseData>;
+
+export interface RefreshTokenResponseData {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export type RefreshTokenResponseDto = ApiResponse<RefreshTokenResponseData>;

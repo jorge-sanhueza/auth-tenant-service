@@ -8,6 +8,8 @@ import {
   UserDeactivatedException,
 } from '../../../domain/exceptions/domain.exception';
 import { LoginResult } from '../types/login-result.type';
+import { Session } from 'src/domain/entities/session.entity';
+import type { ISessionRepository } from 'src/domain/interfaces/repositories/session.repository.interface';
 
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<
@@ -19,6 +21,8 @@ export class LoginHandler implements ICommandHandler<
     private readonly userRepository: IUserRepository,
     @Inject('ITokenService')
     private readonly tokenService: ITokenService,
+    @Inject('ISessionRepository')
+    private readonly sessionRepository: ISessionRepository,
   ) {}
 
   async execute(command: LoginCommand): Promise<LoginResult> {
@@ -52,6 +56,9 @@ export class LoginHandler implements ICommandHandler<
       tenantId: user.getTenantId(),
       roles: user.getRoles(),
     });
+
+    const session = Session.create(user.getId(), tokens.refreshToken, 7);
+    await this.sessionRepository.create(session);
 
     return {
       ...tokens,

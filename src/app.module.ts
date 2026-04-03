@@ -19,13 +19,27 @@ import { TenantMiddleware } from './infrastructure/http/middleware/tenant.middle
 import { JwtModule } from './infrastructure/auth/jwt/jwt.module';
 import { AuthInfrastructureModule } from './infrastructure/auth/auth.module';
 import { UserController } from './interface/http/controllers/user.controller';
+import { PrismaSessionRepository } from './infrastructure/persistence/prisma/repositories/prisma-session.repository';
+import { RefreshTokenHandler } from './application/auth/handlers/refresh-token.handler';
+import { LogoutHandler } from './application/auth/handlers/logout.handler';
+import { LogoutAllHandler } from './application/auth/handlers/logout-all.handler';
 
-const commandHandlers = [RegisterHandler, LoginHandler];
+const commandHandlers = [
+  RegisterHandler,
+  LoginHandler,
+  RefreshTokenHandler,
+  LogoutHandler,
+  LogoutAllHandler,
+];
 const queryHandlers = [GetCurrentUserHandler];
 const repositories = [
   {
     provide: 'IUserRepository',
     useClass: PrismaUserRepository,
+  },
+  {
+    provide: 'ISessionRepository',
+    useClass: PrismaSessionRepository,
   },
 ];
 
