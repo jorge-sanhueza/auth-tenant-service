@@ -24,6 +24,10 @@ import { RefreshTokenHandler } from './application/auth/handlers/refresh-token.h
 import { LogoutHandler } from './application/auth/handlers/logout.handler';
 import { LogoutAllHandler } from './application/auth/handlers/logout-all.handler';
 import { ChangePasswordHandler } from './application/auth/handlers/change-password.handler';
+import { PrismaRoleRepository } from './infrastructure/persistence/prisma/repositories/prisma-role.repository';
+import { CreateRoleHandler } from './application/role/handlers/create-role.handler';
+import { ListRolesHandler } from './application/role/handlers/list-roles.handler';
+import { RoleController } from './interface/http/controllers/role.controller';
 
 const commandHandlers = [
   RegisterHandler,
@@ -32,8 +36,9 @@ const commandHandlers = [
   LogoutHandler,
   LogoutAllHandler,
   ChangePasswordHandler,
+  CreateRoleHandler,
 ];
-const queryHandlers = [GetCurrentUserHandler];
+const queryHandlers = [GetCurrentUserHandler, ListRolesHandler];
 const repositories = [
   {
     provide: 'IUserRepository',
@@ -42,6 +47,10 @@ const repositories = [
   {
     provide: 'ISessionRepository',
     useClass: PrismaSessionRepository,
+  },
+  {
+    provide: 'IRoleRepository',
+    useClass: PrismaRoleRepository,
   },
 ];
 
@@ -64,7 +73,7 @@ const repositories = [
     JwtModule,
     AuthInfrastructureModule,
   ],
-  controllers: [AuthController, AppController, UserController],
+  controllers: [AuthController, AppController, UserController, RoleController],
   providers: [
     // Infrastructure
     PrismaService,
