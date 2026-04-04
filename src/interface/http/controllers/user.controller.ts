@@ -6,7 +6,7 @@ import {
 } from '../decorators/current-user.decorator';
 import { GetCurrentUserQuery } from '../../../application/user/queries/get-current-user.query';
 import { ApiResponse } from '../dto/response/api-response.dto';
-import type { UserProfileDto } from '../dto/response/user-profile.dto.ts';
+import type { UserProfileDto } from '../dto/response/user-profile.dto';
 
 @Controller('users')
 export class UserController {
@@ -14,7 +14,9 @@ export class UserController {
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async getCurrentUser(@CurrentUser() currentUser: CurrentUserType) {
+  async getCurrentUser(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<ApiResponse<UserProfileDto>> {
     const query = new GetCurrentUserQuery(
       currentUser.userId,
       currentUser.tenantId,

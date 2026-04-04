@@ -6,15 +6,14 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  Req,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import type { Request } from 'express';
 import { CreateRoleCommand } from '../../../application/role/commands/create-role.command';
 import { ListRolesQuery } from '../../../application/role/queries/list-roles.query';
 import { CreateRoleRequestDto } from '../dto/request/create-role.request.dto';
 import { ApiResponse } from '../dto/response/api-response.dto';
 import { Permissions } from '../decorators/permissions.decorator';
+import { TenantId } from '../decorators/tenant-id.decorator';
 import { CreateRoleResult } from 'src/application/role/handlers/create-role.handler';
 import { ListRolesResult } from 'src/application/role/handlers/list-roles.handler';
 
@@ -29,14 +28,12 @@ export class RoleController {
   @Permissions('role:create')
   @HttpCode(HttpStatus.CREATED)
   async createRole(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Body() createRoleDto: CreateRoleRequestDto,
   ) {
-    const tenantId = request.tenantId;
-
     const command = new CreateRoleCommand(
       createRoleDto.name,
-      tenantId!,
+      tenantId,
       createRoleDto.description,
     );
 
@@ -56,15 +53,14 @@ export class RoleController {
   @Permissions('role:read')
   @HttpCode(HttpStatus.OK)
   async listRoles(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const tenantId = request.tenantId;
-    const pageNumber = parseInt(page || '1', 10);
-    const limitNumber = parseInt(limit || '10', 10);
+    const pageNumber = parseInt(page ?? '1', 10);
+    const limitNumber = parseInt(limit ?? '10', 10);
 
-    const query = new ListRolesQuery(tenantId!, pageNumber, limitNumber);
+    const query = new ListRolesQuery(tenantId, pageNumber, limitNumber);
 
     const result = await this.queryBus.execute<ListRolesQuery, ListRolesResult>(
       query,

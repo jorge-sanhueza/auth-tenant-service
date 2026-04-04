@@ -4,8 +4,6 @@ import {
   Body,
   HttpCode,
   HttpStatus,
-  Req,
-  BadRequestException,
   Patch,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
@@ -23,7 +21,7 @@ import { LoginRequestDto } from '../dto/request/login.request.dto';
 import { LoginCommand } from 'src/application/auth/commands/login.command';
 import { LoginResult } from 'src/application/auth/types/login-result.type';
 import { Public } from '../decorators/public.decorator';
-import type { Request } from 'express';
+import { TenantId } from '../decorators/tenant-id.decorator';
 import { RefreshTokenRequestDto } from '../dto/request/refresh-token.request.dto';
 import { RefreshTokenCommand } from 'src/application/auth/commands/refresh-token.command';
 import { LogoutRequestDto } from '../dto/request/logout.request.dto';
@@ -46,17 +44,9 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Body() registerDto: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
-    const tenantId = request.tenantId;
-
-    if (!tenantId) {
-      throw new BadRequestException(
-        'Tenant ID is required in x-tenant-id header',
-      );
-    }
-
     const command = new RegisterCommand(
       registerDto.email,
       registerDto.password,
@@ -81,17 +71,9 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Body() loginDto: LoginRequestDto,
   ): Promise<LoginResponseDto> {
-    const tenantId = request.tenantId;
-
-    if (!tenantId) {
-      throw new BadRequestException(
-        'Tenant ID is required in x-tenant-id header',
-      );
-    }
-
     const command = new LoginCommand(
       loginDto.email,
       loginDto.password,
@@ -109,17 +91,9 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Body() refreshDto: RefreshTokenRequestDto,
   ): Promise<RefreshTokenResponseDto> {
-    const tenantId = request.tenantId;
-
-    if (!tenantId) {
-      throw new BadRequestException(
-        'Tenant ID is required in x-tenant-id header',
-      );
-    }
-
     const command = new RefreshTokenCommand(refreshDto.refreshToken, tenantId);
 
     const result = await this.commandBus.execute<
@@ -134,21 +108,13 @@ export class AuthController {
     );
   }
 
-  @Public() // Logout is public because client might have invalid token
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Req() request: Request,
+    @TenantId() tenantId: string,
     @Body() logoutDto: LogoutRequestDto,
-  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
-    const tenantId = request.tenantId;
-
-    if (!tenantId) {
-      throw new BadRequestException(
-        'Tenant ID is required in x-tenant-id header',
-      );
-    }
-
+  ): Promise<ApiResponse<LogoutResult>> {
     const command = new LogoutCommand(logoutDto.refreshToken, tenantId);
 
     const result = await this.commandBus.execute<LogoutCommand, LogoutResult>(
@@ -158,12 +124,11 @@ export class AuthController {
     return ApiResponse.success(result, result.message, HttpStatus.OK);
   }
 
-  // Protected endpoint - requires authentication
   @Post('logout-all')
   @HttpCode(HttpStatus.OK)
   async logoutAll(
     @CurrentUser() currentUser: CurrentUserType,
-  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
+  ): Promise<ApiResponse<LogoutResult>> {
     const command = new LogoutAllCommand(
       currentUser.userId,
       currentUser.tenantId,
@@ -182,7 +147,7 @@ export class AuthController {
   async changePassword(
     @CurrentUser() currentUser: CurrentUserType,
     @Body() changePasswordDto: ChangePasswordRequestDto,
-  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
+  ): Promise<ApiResponse<ChangePasswordResult>> {
     const command = new ChangePasswordCommand(
       currentUser.userId,
       currentUser.tenantId,

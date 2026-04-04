@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix('api');
+
+  // Global filters
+  app.useGlobalFilters(new DomainExceptionFilter());
 
   await app.listen(3000);
   console.log(`Application is running on: http://localhost:3000`);

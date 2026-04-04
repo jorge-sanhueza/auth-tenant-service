@@ -8,7 +8,12 @@ import {
 } from '../../../domain/interfaces/services/token.service.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user.repository.interface';
 import { RefreshTokenResult } from '../types/refresh-token-result.type';
-import { UserNotFoundException } from '../../../domain/exceptions/domain.exception';
+import {
+  SessionExpiredException,
+  SessionNotFoundException,
+  TenantMismatchException,
+  UserNotFoundException,
+} from '../../../domain/exceptions/domain.exception';
 import { Session } from 'src/domain/entities/session.entity';
 
 @CommandHandler(RefreshTokenCommand)
@@ -37,7 +42,7 @@ export class RefreshTokenHandler implements ICommandHandler<
 
     // 2. Verify tenant matches
     if (payload.tenantId !== command.tenantId) {
-      throw new UnauthorizedException('Tenant mismatch');
+      throw new TenantMismatchException();
     }
 
     // 3. Find the session in database
@@ -46,13 +51,13 @@ export class RefreshTokenHandler implements ICommandHandler<
     );
 
     if (!session) {
-      throw new UnauthorizedException('Session not found');
+      throw new SessionNotFoundException();
     }
 
     // 4. Check if session is expired
     if (session.isExpired()) {
       await this.sessionRepository.delete(session.getId());
-      throw new UnauthorizedException('Refresh token expired');
+      throw new SessionExpiredException();
     }
 
     // 5. Get the user

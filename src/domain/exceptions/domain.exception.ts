@@ -39,3 +39,24 @@ export class UserAlreadyExistsException extends DomainException {
     this.name = 'UserAlreadyExistsException';
   }
 }
+
+export class SessionNotFoundException extends DomainException {
+  constructor() {
+    super('Session not found');
+    this.name = 'SessionNotFoundException';
+  }
+}
+
+export class SessionExpiredException extends DomainException {
+  constructor() {
+    super('Session has expired');
+    this.name = 'SessionExpiredException';
+  }
+}
+
+export class TenantMismatchException extends DomainException {
+  constructor() {
+    super('Token tenant does not match request tenant');
+    this.name = 'TenantMismatchException';
+  }
+}

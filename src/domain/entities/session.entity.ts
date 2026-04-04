@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
+import { UserId } from '../value-objects/user-id.vo';
 
 export class Session {
   private constructor(
     private readonly id: string,
     private readonly token: string,
-    private readonly userId: string,
+    private readonly userId: UserId,
     private readonly expiresAt: Date,
     private readonly createdAt: Date,
   ) {}
@@ -20,7 +21,7 @@ export class Session {
     return new Session(
       randomUUID(),
       refreshToken,
-      userId,
+      UserId.fromString(userId),
       expiresAt,
       new Date(),
     );
@@ -36,7 +37,7 @@ export class Session {
     return new Session(
       data.id,
       data.token,
-      data.userId,
+      UserId.fromString(data.userId),
       data.expiresAt,
       data.createdAt,
     );
@@ -56,7 +57,7 @@ export class Session {
   }
 
   getUserId(): string {
-    return this.userId;
+    return this.userId.getValue();
   }
 
   getExpiresAt(): Date {

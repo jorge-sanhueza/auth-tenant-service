@@ -28,7 +28,7 @@ export class AppController {
     return ApiResponse.success(
       {
         message: 'Auth Tenant Service API',
-        documentation: '/api/docs', // If you add Swagger later
+        documentation: '/api/docs', // For Swagger
       },
       'API endpoints available under /api/*',
     );
