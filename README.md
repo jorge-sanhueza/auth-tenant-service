@@ -22,12 +22,14 @@ The project has the following layers:
 
 - Multi-tenant architecture (tenant isolation via headers)
 - JWT authentication (access + refresh tokens)
+- Session management with database-backed sessions
 - Role-based access control (RBAC)
 - Permission-based authorization
 - Type-safe throughout (TypeScript)
 - CQRS pattern with NestJS CQRS module
-- Prisma ORM with PostgreSQL (easily expandable)
+- Prisma ORM with PostgreSQL
 - Input validation with class-validator
+- Default role assignment on user registration
 
 ## Database Setup
 
@@ -46,16 +48,29 @@ npm run prisma:seed
 
 ### Authentication (Public)
 
-| Method | Endpoint             | Description          |
-| ------ | -------------------- | -------------------- |
-| POST   | `/api/auth/register` | Register new user    |
-| POST   | `/api/auth/login`    | Login and get tokens |
+| Method | Endpoint                    | Description                                            |
+| ------ | --------------------------- | ------------------------------------------------------ |
+| POST   | `/api/auth/register`        | Register a new user (auto-assigns default role)        |
+| POST   | `/api/auth/login`           | Login and get access/refresh tokens                    |
+| POST   | `/api/auth/refresh`         | Get a new access token using a refresh token           |
+| POST   | `/api/auth/logout`          | Invalidate the current session                         |
+| POST   | `/api/auth/logout-all`      | Invalidate all user sessions (requires authentication) |
+| PATCH  | `/api/auth/change-password` | Change password (invalidates all sessions)             |
 
 ### User Management (Protected)
 
 | Method | Endpoint        | Description              |
 | ------ | --------------- | ------------------------ |
 | GET    | `/api/users/me` | Get current user profile |
+
+### Role Management (Protected)
+
+These endpoints require authentication and specific role-based permissions.
+
+| Method | Endpoint     | Description     | Permission Required |
+| ------ | ------------ | --------------- | ------------------- |
+| POST   | `/api/roles` | Create new role | `role:create`       |
+| GET    | `/api/roles` | List all roles  | `role:read`         |
 
 Headers Required
 All requests must include:
