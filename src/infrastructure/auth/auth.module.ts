@@ -14,7 +14,10 @@ import { PermissionsGuard } from 'src/interface/http/guards/permissions.guard';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    PermissionsGuard,
+    {
+      provide: 'PERMISSIONS_GUARD',
+      useClass: PermissionsGuard,
+    },
   ],
   exports: [JwtModule],
 })

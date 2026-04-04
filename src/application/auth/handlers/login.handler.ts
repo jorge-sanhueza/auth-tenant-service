@@ -10,6 +10,8 @@ import {
 import { LoginResult } from '../types/login-result.type';
 import { Session } from 'src/domain/entities/session.entity';
 import type { ISessionRepository } from 'src/domain/interfaces/repositories/session.repository.interface';
+import type { IRoleRepository } from 'src/domain/interfaces/repositories/role.repository.interface';
+import { UserPermissionService } from 'src/domain/services/user-permission.service';
 
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<
@@ -23,6 +25,8 @@ export class LoginHandler implements ICommandHandler<
     private readonly tokenService: ITokenService,
     @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
+    @Inject('IRoleRepository')
+    private readonly roleRepository: IRoleRepository,
   ) {}
 
   async execute(command: LoginCommand): Promise<LoginResult> {
@@ -46,6 +50,18 @@ export class LoginHandler implements ICommandHandler<
       throw new UserDeactivatedException();
     }
 
+    // Get all roles for this tenant to extract permissions
+    const allRoles = await this.roleRepository.findAll(command.tenantId);
+
+    // Extract permissions for the user's roles
+    const userPermissions = UserPermissionService.getUserPermissions(
+      user,
+      allRoles,
+    );
+
+    // Set permissions on user object
+    user.setPermissions(userPermissions);
+
     // Update last login
     await this.userRepository.updateLastLogin(user.getId(), user.getTenantId());
 
@@ -57,6 +73,7 @@ export class LoginHandler implements ICommandHandler<
       roles: user.getRoles(),
     });
 
+    // Create session for refresh token
     const session = Session.create(user.getId(), tokens.refreshToken, 7);
     await this.sessionRepository.create(session);
 

@@ -293,4 +293,35 @@ export class PrismaUserRepository implements IUserRepository {
       this.handleError('Error finding users by role', error);
     }
   }
+
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    try {
+      await this.prisma.userRole.create({
+        data: {
+          userId,
+          roleId,
+          assignedAt: new Date(),
+        },
+      });
+      this.logger.log(`Role ${roleId} assigned to user ${userId}`);
+    } catch (error) {
+      this.handleError(`assigning role to user ${userId}`, error);
+    }
+  }
+
+  async removeRole(userId: string, roleId: string): Promise<void> {
+    try {
+      await this.prisma.userRole.delete({
+        where: {
+          userId_roleId: {
+            userId,
+            roleId,
+          },
+        },
+      });
+      this.logger.log(`Role ${roleId} removed from user ${userId}`);
+    } catch (error) {
+      this.handleError(`removing role from user ${userId}`, error);
+    }
+  }
 }

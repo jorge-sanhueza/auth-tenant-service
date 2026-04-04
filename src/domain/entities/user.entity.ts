@@ -14,6 +14,7 @@ export class User {
     private lastName: string | null,
     private isActive: boolean,
     private roles: string[],
+    private permissions: string[],
     private lastLoginAt: Date | null,
     private createdAt: Date,
     private updatedAt: Date,
@@ -35,6 +36,7 @@ export class User {
       lastName || null,
       true,
       [],
+      [],
       null,
       new Date(),
       new Date(),
@@ -50,6 +52,7 @@ export class User {
     lastName: string | null;
     isActive: boolean;
     roles: string[];
+    permissions?: string[];
     lastLoginAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
@@ -63,6 +66,7 @@ export class User {
       data.lastName,
       data.isActive,
       data.roles,
+      data.permissions || [],
       data.lastLoginAt,
       data.createdAt,
       data.updatedAt,
@@ -94,6 +98,37 @@ export class User {
       this.roles.splice(index, 1);
       this.updatedAt = new Date();
     }
+  }
+
+  setPermissions(permissions: string[]): void {
+    this.permissions = permissions;
+    this.updatedAt = new Date();
+  }
+
+  hasPermission(permission: string): boolean {
+    // Admin role has all permissions
+    if (this.roles.includes('admin')) {
+      return true;
+    }
+    return this.permissions.includes(permission);
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    if (this.roles.includes('admin')) {
+      return true;
+    }
+    return permissions.some((permission) =>
+      this.permissions.includes(permission),
+    );
+  }
+
+  hasAllPermissions(permissions: string[]): boolean {
+    if (this.roles.includes('admin')) {
+      return true;
+    }
+    return permissions.every((permission) =>
+      this.permissions.includes(permission),
+    );
   }
 
   deactivate(): void {
@@ -144,6 +179,10 @@ export class User {
 
   getRoles(): string[] {
     return [...this.roles];
+  }
+
+  getPermissions(): string[] {
+    return [...this.permissions];
   }
 
   getLastLoginAt(): Date | null {

@@ -3,6 +3,7 @@ export interface TokenPayload {
   email: string;
   tenantId: string;
   roles: string[];
+  permissions?: string[];
 }
 
 export interface TokenResult {

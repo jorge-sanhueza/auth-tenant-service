@@ -30,6 +30,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'Invalid token payload: missing required fields',
       );
     }
+    // Extract permissions from payload
+    const permissions = Array.isArray(typedPayload.permissions)
+      ? typedPayload.permissions.filter(
+          (r): r is string => typeof r === 'string',
+        )
+      : [];
 
     return {
       userId: typedPayload.sub,
@@ -38,6 +44,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       roles: Array.isArray(typedPayload.roles)
         ? typedPayload.roles.filter((r): r is string => typeof r === 'string')
         : [],
+      permissions,
     };
   }
 }

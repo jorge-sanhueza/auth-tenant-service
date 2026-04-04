@@ -4,6 +4,7 @@ import type { IUserRepository } from '../../../domain/interfaces/repositories/us
 import { User } from '../../../domain/entities/user.entity';
 import { UserAlreadyExistsException } from '../../../domain/exceptions/domain.exception';
 import { Inject } from '@nestjs/common';
+import type { IRoleRepository } from 'src/domain/interfaces/repositories/role.repository.interface';
 
 export interface RegisterCommandResult {
   userId: string;
@@ -19,6 +20,8 @@ export class RegisterHandler implements ICommandHandler<
   constructor(
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
+    @Inject('IRoleRepository')
+    private readonly roleRepository: IRoleRepository,
   ) {}
 
   async execute(command: RegisterCommand): Promise<RegisterCommandResult> {
@@ -43,6 +46,20 @@ export class RegisterHandler implements ICommandHandler<
 
     // Persist user
     await this.userRepository.save(user);
+
+    // Assign default user role
+    const defaultRole = await this.roleRepository.findByName(
+      'user',
+      command.tenantId,
+    );
+
+    if (defaultRole) {
+      // You'll need to add an assignRole method to your user repository
+      await this.userRepository.assignRole(user.getId(), defaultRole.getId());
+
+      // Also update the user entity's roles array
+      user.assignRole(defaultRole.getName());
+    }
 
     return {
       userId: user.getId(),

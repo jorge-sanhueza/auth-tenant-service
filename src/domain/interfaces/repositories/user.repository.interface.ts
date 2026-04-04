@@ -11,6 +11,8 @@ export interface IUserRepository {
     take?: number,
   ): Promise<User[]>;
   findUsersByRole(tenantId: string, roleName: string): Promise<User[]>;
+  assignRole(userId: string, roleId: string): Promise<void>;
+  removeRole(userId: string, roleId: string): Promise<void>;
   save(user: User): Promise<void>;
   update(user: User): Promise<void>;
   delete(id: string, tenantId: string): Promise<void>;

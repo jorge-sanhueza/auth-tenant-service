@@ -14,6 +14,7 @@ export interface RequestWithUser extends Request {
     email: string;
     tenantId: string;
     roles: string[];
+    permissions: string[];
   };
 }
 
@@ -27,7 +28,8 @@ export class PermissionsGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    if (!requiredPermissions) {
+    // If no permissions required, allow access
+    if (!requiredPermissions || requiredPermissions.length === 0) {
       return true;
     }
 
@@ -38,15 +40,36 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    // check if user has admin role (full access)
-    const hasAdminRole = user.roles.includes('admin');
-
-    if (hasAdminRole) {
+    // Admin role has full access to everything
+    if (user.roles.includes('admin')) {
       return true;
     }
 
-    // TODO: Implement proper permission checking when there are user permissions
+    // Check if user has any of the required permissions
+    const userPermissions = user.permissions || [];
 
-    throw new ForbiddenException('Insufficient permissions');
+    // User needs ALL required permissions
+    const hasAllPermissions = requiredPermissions.every((permission) =>
+      userPermissions.includes(permission),
+    );
+
+    if (hasAllPermissions) {
+      return true;
+    }
+
+    // User needs ANY of the required permissions
+    // const hasAnyPermission = requiredPermissions.some(permission =>
+    //   userPermissions.includes(permission),
+    // );
+    // if (hasAnyPermission) return true;
+
+    // Log which permissions are missing for debugging
+    const missingPermissions = requiredPermissions.filter(
+      (permission) => !userPermissions.includes(permission),
+    );
+
+    throw new ForbiddenException(
+      `Insufficient permissions. Missing: ${missingPermissions.join(', ')}`,
+    );
   }
 }

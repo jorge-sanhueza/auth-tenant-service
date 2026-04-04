@@ -6,6 +6,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateRoleCommand } from '../../../application/role/commands/create-role.command';
@@ -16,8 +17,10 @@ import { Permissions } from '../decorators/permissions.decorator';
 import { TenantId } from '../decorators/tenant-id.decorator';
 import { CreateRoleResult } from 'src/application/role/handlers/create-role.handler';
 import { ListRolesResult } from 'src/application/role/handlers/list-roles.handler';
+import { PermissionsGuard } from '../guards/permissions.guard';
 
 @Controller('roles')
+@UseGuards(PermissionsGuard)
 export class RoleController {
   constructor(
     private readonly commandBus: CommandBus,
