@@ -324,4 +324,19 @@ export class PrismaUserRepository implements IUserRepository {
       this.handleError(`removing role from user ${userId}`, error);
     }
   }
+
+  async getUserRoles(userId: string): Promise<string[]> {
+    try {
+      const userRoles = await this.prisma.userRole.findMany({
+        where: { userId },
+        include: {
+          role: true,
+        },
+      });
+
+      return userRoles.map((ur) => ur.role.name);
+    } catch (error) {
+      this.handleError(`getting user roles for ${userId}`, error);
+    }
+  }
 }

@@ -48,29 +48,40 @@ npm run prisma:seed
 
 ### Authentication (Public)
 
-| Method | Endpoint                    | Description                                            |
-| ------ | --------------------------- | ------------------------------------------------------ |
-| POST   | `/api/auth/register`        | Register a new user (auto-assigns default role)        |
-| POST   | `/api/auth/login`           | Login and get access/refresh tokens                    |
-| POST   | `/api/auth/refresh`         | Get a new access token using a refresh token           |
-| POST   | `/api/auth/logout`          | Invalidate the current session                         |
-| POST   | `/api/auth/logout-all`      | Invalidate all user sessions (requires authentication) |
-| PATCH  | `/api/auth/change-password` | Change password (invalidates all sessions)             |
+| Method | Endpoint                    | Description                                     |
+| ------ | --------------------------- | ----------------------------------------------- |
+| POST   | `/api/auth/register`        | Register a new user (auto-assigns default role) |
+| POST   | `/api/auth/login`           | Login and get access/refresh tokens             |
+| POST   | `/api/auth/refresh`         | Get a new access token using a refresh token    |
+| POST   | `/api/auth/logout`          | Invalidate the current session                  |
+| POST   | `/api/auth/logout-all`      | Invalidate all user sessions                    |
+| PATCH  | `/api/auth/change-password` | Change password (invalidates all sessions)      |
 
 ### User Management (Protected)
 
-| Method | Endpoint        | Description              |
-| ------ | --------------- | ------------------------ |
-| GET    | `/api/users/me` | Get current user profile |
+| Method | Endpoint                           | Description               | Permission Required |
+| ------ | ---------------------------------- | ------------------------- | ------------------- |
+| GET    | `/api/users/me`                    | Get current user profile  | Authenticated       |
+| GET    | `/api/users`                       | List all users            | user:read           |
+| POST   | `/api/users/:userId/roles/:roleId` | Assign a role to a user   | role:assign         |
+| DELETE | `/api/users/:userId/roles/:roleId` | Remove a role from a user | role:assign         |
 
 ### Role Management (Protected)
 
-These endpoints require authentication and specific role-based permissions.
+| Method | Endpoint                     | Description                  | Permission Required |
+| ------ | ---------------------------- | ---------------------------- | ------------------- |
+| POST   | `/api/roles`                 | Create a new role            | role:create         |
+| GET    | `/api/roles`                 | List all roles               | role:read           |
+| GET    | `/api/roles/:id`             | Get role by ID               | role:read           |
+| PATCH  | `/api/roles/:id`             | Update a role                | role:update         |
+| DELETE | `/api/roles/:id`             | Delete a role                | role:delete         |
+| POST   | `/api/roles/:id/permissions` | Assign permissions to a role | permission:assign   |
 
-| Method | Endpoint     | Description     | Permission Required |
-| ------ | ------------ | --------------- | ------------------- |
-| POST   | `/api/roles` | Create new role | `role:create`       |
-| GET    | `/api/roles` | List all roles  | `role:read`         |
+### Permission Management (Protected)
+
+| Method | Endpoint           | Description                    | Permission Required |
+| ------ | ------------------ | ------------------------------ | ------------------- |
+| GET    | `/api/permissions` | List all available permissions | role:read           |
 
 Headers Required
 All requests must include:

@@ -28,6 +28,15 @@ import { PrismaRoleRepository } from './infrastructure/persistence/prisma/reposi
 import { CreateRoleHandler } from './application/role/handlers/create-role.handler';
 import { ListRolesHandler } from './application/role/handlers/list-roles.handler';
 import { RoleController } from './interface/http/controllers/role.controller';
+import { GetRoleHandler } from './application/role/handlers/get-role.handler';
+import { DeleteRoleHandler } from './application/role/handlers/delete-role.handler';
+import { AssignPermissionsHandler } from './application/role/handlers/assign-permissions.handler';
+import { UpdateRoleHandler } from './application/role/handlers/update-role.handler';
+import { ListPermissionsHandler } from './application/permission/handlers/list-permissions.handler';
+import { PermissionController } from './interface/http/controllers/permission.controller';
+import { AssignRoleHandler } from './application/user/handlers/assign-role.handler';
+import { RemoveRoleHandler } from './application/user/handlers/remove-role.handler';
+import { ListUsersHandler } from './application/user/handlers/list-users.handler';
 
 const commandHandlers = [
   RegisterHandler,
@@ -37,8 +46,19 @@ const commandHandlers = [
   LogoutAllHandler,
   ChangePasswordHandler,
   CreateRoleHandler,
+  UpdateRoleHandler,
+  DeleteRoleHandler,
+  AssignPermissionsHandler,
+  AssignRoleHandler,
+  RemoveRoleHandler,
 ];
-const queryHandlers = [GetCurrentUserHandler, ListRolesHandler];
+const queryHandlers = [
+  GetCurrentUserHandler,
+  ListRolesHandler,
+  GetRoleHandler,
+  ListPermissionsHandler,
+  ListUsersHandler,
+];
 const repositories = [
   {
     provide: 'IUserRepository',
@@ -73,7 +93,13 @@ const repositories = [
     JwtModule,
     AuthInfrastructureModule,
   ],
-  controllers: [AuthController, AppController, UserController, RoleController],
+  controllers: [
+    AuthController,
+    AppController,
+    UserController,
+    RoleController,
+    PermissionController,
+  ],
   providers: [
     // Infrastructure
     PrismaService,

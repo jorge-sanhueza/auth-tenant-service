@@ -18,4 +18,7 @@ export interface IUserRepository {
   delete(id: string, tenantId: string): Promise<void>;
   count(tenantId: string): Promise<number>;
   updateLastLogin(id: string, tenantId: string): Promise<void>;
+  assignRole(userId: string, roleId: string): Promise<void>;
+  removeRole(userId: string, roleId: string): Promise<void>;
+  getUserRoles(userId: string, tenantId: string): Promise<string[]>;
 }

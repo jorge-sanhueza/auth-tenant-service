@@ -1,10 +1,10 @@
-export class ApiResponse<T = any> {
-  success: boolean;
-  message: string;
+export class ApiResponse<T = unknown> {
+  success!: boolean;
+  message!: string;
   data?: T;
   error?: string;
-  timestamp: string;
-  statusCode: number;
+  timestamp!: string;
+  statusCode!: number;
 
   constructor(partial: Partial<ApiResponse<T>>) {
     Object.assign(this, partial);
@@ -24,8 +24,12 @@ export class ApiResponse<T = any> {
     });
   }
 
-  static error(message: string, error?: string, statusCode = 400): ApiResponse {
-    return new ApiResponse({
+  static error(
+    message: string,
+    error?: string,
+    statusCode = 400,
+  ): ApiResponse<never> {
+    return new ApiResponse<never>({
       success: false,
       message,
       error,

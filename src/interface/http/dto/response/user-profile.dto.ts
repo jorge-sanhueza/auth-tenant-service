@@ -3,31 +3,31 @@ import { Exclude, Expose } from 'class-transformer';
 @Exclude()
 export class UserProfileDto {
   @Expose()
-  id: string;
+  id!: string;
 
   @Expose()
-  email: string;
+  email!: string;
 
   @Expose()
-  firstName: string | null;
+  firstName!: string | null;
 
   @Expose()
-  lastName: string | null;
+  lastName!: string | null;
 
   @Expose()
-  roles: string[];
+  roles!: string[];
 
   @Expose()
-  isActive: boolean;
+  isActive!: boolean;
 
   @Expose()
-  lastLoginAt: Date | null;
+  lastLoginAt!: Date | null;
 
   @Expose()
-  createdAt: Date;
+  createdAt!: Date;
 
   @Expose()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Expose()
   get fullName(): string | null {
